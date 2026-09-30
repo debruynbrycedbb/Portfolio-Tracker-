@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ledgerline — Portfolio</title>
+  <meta name="description" content="Personal investment tracker for stocks, ETFs, crypto and memecoins.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f4f4f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0c0e" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23121316'/%3E%3Cpath d='M7 21l6-6 4 4 8-9' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..650&display=swap">
+  <link rel="stylesheet" href="css/app.css?v=2026.09.30-3">
+  <script>
+    // Apply the saved theme before first paint (avoids a flash). Reads the settings key directly;
+    // everything else goes through js/store.js.
+    (function () {
+      try {
+        var s = JSON.parse(localStorage.getItem('pt:v1:book:settings') || '{}');
+        if (s.theme === 'light' || s.theme === 'dark') document.documentElement.setAttribute('data-theme', s.theme);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="sr-only" href="#view" id="skip">Skip to content</a>
+  <div class="shell">
+    <aside class="side" aria-label="Main">
+      <a class="brand" href="#/dashboard">
+        <span class="brand__mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16l5-5 3.5 3.5L20 7"/></svg></span>
+        <span class="brand__name">Ledgerline<span class="brand__sub">Personal portfolio</span></span>
+      </a>
+      <button type="button" class="btn btn--primary btn--block" data-action="add-trade">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Add trade <span class="kbd" aria-hidden="true">A</span>
+      </button>
+      <nav class="nav" id="nav" aria-label="Sections"></nav>
+      <div class="side__foot">
+        <div class="status-line" id="sync-line" hidden></div>
+        <div class="status-line" id="status-line" aria-live="polite"></div>
+        <button type="button" class="btn btn--block" data-action="refresh" id="refresh-btn">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 10-2.3 5.7M20 4v7h-7"/></svg>
+          Refresh prices <span class="kbd" aria-hidden="true">R</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar__row">
+          <a class="brand" href="#/dashboard">
+            <span class="brand__mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16l5-5 3.5 3.5L20 7"/></svg></span>
+            <span class="brand__name">Ledgerline</span>
+          </a>
+          <div class="topbar__actions">
+            <span class="status-line" id="sync-line-m" hidden></span>
+            <span class="status-line" id="status-line-m"></span>
+            <button type="button" class="btn btn--icon" data-action="refresh" aria-label="Refresh prices">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 10-2.3 5.7M20 4v7h-7"/></svg>
+            </button>
+          </div>
+        </div>
+        <nav class="topnav" id="topnav" aria-label="Sections"></nav>
+      </header>
+
+      <main class="content" id="view" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <button type="button" class="btn btn--primary fab" data-action="add-trade" aria-label="Add trade">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add trade
+  </button>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <noscript><p style="padding:24px">This tracker needs JavaScript enabled.</p></noscript>
+
+  <!-- Classic scripts (not ES modules) so index.html also works opened straight from disk. -->
+  <script src="js/config.js?v=2026.09.30-3"></script>
+  <script src="js/util.js?v=2026.09.30-3"></script>
+  <script src="js/store.js?v=2026.09.30-3"></script>
+  <script src="js/portfolio.js?v=2026.09.30-3"></script>
+  <script src="js/providers.js?v=2026.09.30-3"></script>
+  <script src="js/market.js?v=2026.09.30-3"></script>
+  <script src="js/history.js?v=2026.09.30-3"></script>
+  <script src="js/charts.js?v=2026.09.30-3"></script>
+  <script src="js/ui.js?v=2026.09.30-3"></script>
+  <script src="js/views.js?v=2026.09.30-3"></script>
+  <script src="js/transactions.js?v=2026.09.30-3"></script>
+  <script src="js/settings.js?v=2026.09.30-3"></script>
+  <script src="js/cash.js?v=2026.09.30-3"></script>
+  <script src="js/pie.js?v=2026.09.30-3"></script>
+  <script src="js/sync.js?v=2026.09.30-3"></script>
+  <script src="js/viewer.js?v=2026.09.30-3"></script>
+  <script src="js/modal.js?v=2026.09.30-3"></script>
+  <script src="js/app.js?v=2026.09.30-3"></script>
+</body>
+</html>
