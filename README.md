@@ -30,10 +30,11 @@ Plain HTML, CSS and JavaScript: no build step, no npm, no server, nothing to pay
 11. [Cash reserve](#cash-reserve)
 12. [Sync across devices](#sync-across-devices)
 13. [Share a read-only view](#share-a-read-only-view)
-14. [Charts and history](#charts-and-history)
-15. [Backups](#backups)
-16. [Troubleshooting](#troubleshooting)
-17. [Project layout](#project-layout)
+14. [Mac app (Dock)](#mac-app-dock)
+15. [Charts and history](#charts-and-history)
+16. [Backups](#backups)
+17. [Troubleshooting](#troubleshooting)
+18. [Project layout](#project-layout)
 
 ---
 
@@ -73,8 +74,9 @@ you'd rather not publish those numbers).
 
 Phones cache web pages hard, so after an upload a phone can keep running the old files. To avoid that:
 
-1. When you change the app, bump the version in **three places** to the same new value:
-   `APP_VERSION` in `js/config.js`, `version.json`, and every `?v=` in `index.html`.
+1. When you change the app, bump the version in **four places** to the same new value:
+   `APP_VERSION` in `js/config.js`, `version.json`, every `?v=` in `index.html`, and `VERSION` at the top of `sw.js`.
+   (The Mac app's offline copy is stored under that version, so a mismatch would leave it saving files it never uses.)
 2. Upload the files. Any device still running the old copy shows **"Update available — Reload"**
    (checked on open and whenever you switch back to the tab). Tap it.
 3. The running version is printed at the bottom of **Settings** — compare it across devices.
@@ -394,6 +396,33 @@ tab, and every minute while it's open. Prices refresh on the viewer's own schedu
 - Make the link from the site's real address (e.g. GitHub Pages), not a local copy, or the link
   will point at `localhost`.
 
+## Mac app (Dock)
+
+Ledgerline installs as an app with its own window and Dock icon — no App Store, no download. It is the same site
+(the "installable web app" files are `manifest.webmanifest`, `sw.js`, `js/pwa.js` and `icons/`), so every upload
+to GitHub reaches the app the next time it opens.
+
+**From Safari (macOS Sonoma or later)**
+1. In Safari, Settings → copy your **relay URL** (Stock data relay) and your **sync key** (Sync across devices → Show sync key).
+2. Menu bar → **File → Add to Dock…** → Add.
+3. Open Ledgerline from the Dock. Safari gives Dock apps their **own, empty storage** (it copies cookies only), so the app opens
+   with the starter holdings and says so. Settings → paste the relay URL → Save → paste the sync key → **Connect** →
+   *Use the synced portfolio*. Done — from then on it stays in sync like any other device.
+
+**From Chrome or Edge**: the install icon in the address bar (or ⋮ → Cast, save and share → Install page as app).
+A Chrome-installed app shares Chrome's storage, so your portfolio, relay and sync are already there.
+Keep it in the Dock: right-click the icon while it's open → Options → Keep in Dock.
+
+What the app adds:
+- **Opens offline** with your portfolio and the last prices received; the status line reads *Offline · prices from …*,
+  and prices refresh as soon as you reconnect.
+- **Always the current version online.** App files are fetched network-first; the saved copy is only used offline.
+  Prices, your relay, sync and share links are never cached by the app — they always go straight to the network.
+- **Dock shortcuts** (right-click the icon): Add trade, Transactions, Memecoins.
+- Settings → **Mac app** shows the right install steps for the browser you're in.
+
+Offline, the Geist fonts aren't available (they load from Google Fonts), so the app falls back to the system font.
+
 ## Charts and history
 
 All charts are hand-written SVG — no chart library.
@@ -448,6 +477,8 @@ before first paint, to avoid a flash) — to add a real backend later, reimpleme
 | Phone's Settings is missing cards (e.g. no **Sync across devices**) | The phone is running an older copy. Reload the page, or tap **Update available — Reload**. The version at the bottom of Settings should match your computer's. |
 | Share link says "This link is switched off" | It was replaced (**New link**) or turned off. Copy the current link from Settings → Sync on a connected device. |
 | Settings shows no *Share a read-only view* option, or "older version without share links" | Sync must be connected on that device, and the Worker must run the latest `cors-worker.js` (paste + Deploy). |
+| Mac app opened with the starter holdings | It was added from Safari, which gives Dock apps separate storage. Settings → relay URL → Save, then Sync → paste the key → Connect → *Use the synced portfolio*. |
+| No install option in Chrome | Open the site from its https:// GitHub Pages address, not a file on disk. |
 | "Browser storage is full" | Export a backup, then Settings → Clear recorded history. |
 
 ## Project layout
@@ -474,7 +505,11 @@ js/pie.js             pie: target split, drift, invest one amount across stocks 
 js/sync.js            sync across devices: push/pull, three-way merge, Settings card
 js/viewer.js          read-only share link: fetches /view, viewer banner and status
 js/modal.js           add / edit trade form
+js/pwa.js             Mac app: offline worker registration, install card, first-launch check
 js/app.js             boot, routing (#/…), refresh timer, shortcuts
+sw.js                 offline worker: network-first app files, never caches prices/sync
+manifest.webmanifest  app name, icons, Dock shortcuts
+icons/                app icons (Dock, favicon, Apple touch icon)
 ```
 
 A price refresh has no code path to your transactions: the market layer is only given the

@@ -208,6 +208,8 @@ window.PT = window.PT || {};
           '<div class="field" style="flex:0 1 160px"><label for="imp-mode">Mode</label><select class="select" id="imp-mode"><option value="merge">Merge</option><option value="replace">Replace all</option></select></div>' +
           '<button class="btn btn--primary" type="button" data-action="import">Import</button></div>' +
       '</section>' +
+
+      (PT.pwa ? '<section class="card" aria-labelledby="s-app"><h2 class="card__title" id="s-app">Mac app</h2><div id="pwa-card" class="stack" style="gap:12px">' + PT.pwa.cardHtml() + '</div></section>' : '') +
       '</div><div class="settings__col">' +
 
       '<section class="card" aria-labelledby="s-mkt"><h2 class="card__title" id="s-mkt">Stock data relay</h2>' +
@@ -250,6 +252,7 @@ window.PT = window.PT || {};
 
   function bind(root, app) {
     PT.sync.bindCard(root, app);
+    if (PT.pwa) PT.pwa.bindCard(root);
     root.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => {
       book.saveSettings({ [b.dataset.set]: b.dataset.val });
       if (b.dataset.set === 'theme') UI.toast('Theme: ' + b.textContent, 'ok', 1500);

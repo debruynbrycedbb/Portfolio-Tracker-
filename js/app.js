@@ -205,10 +205,13 @@ window.PT = window.PT || {};
     const st = PT.market.state.status || {};
     const busy = !!PT.market.state.refreshing;
     const failing = app.state.summary ? app.state.summary.rows.filter(r => r.quote && r.quote.error).length : 0;
-    const txt = busy ? 'Refreshing prices…' : st.lastRefresh ? 'Updated ' + F.ago(st.lastRefresh) + (failing ? ' · ' + failing + ' failing' : '') : 'Prices not loaded yet';
-    const html = '<span class="status-dot' + (busy ? ' is-busy' : failing ? ' is-warn' : '') + '" aria-hidden="true"></span><span>' + U.esc(txt) + '</span>';
+    const offline = navigator.onLine === false;
+    const txt = offline ? 'Offline · ' + (st.lastRefresh ? 'prices from ' + F.ago(st.lastRefresh) : 'no prices yet')
+      : busy ? 'Refreshing prices…' : st.lastRefresh ? 'Updated ' + F.ago(st.lastRefresh) + (failing ? ' · ' + failing + ' failing' : '') : 'Prices not loaded yet';
+    const dot = offline ? ' is-warn' : busy ? ' is-busy' : failing ? ' is-warn' : '';
+    const html = '<span class="status-dot' + dot + '" aria-hidden="true"></span><span>' + U.esc(txt) + '</span>';
     const a = document.getElementById('status-line'); if (a) a.innerHTML = html;
-    const b = document.getElementById('status-line-m'); if (b) b.innerHTML = '<span class="status-dot' + (busy ? ' is-busy' : failing ? ' is-warn' : '') + '" aria-hidden="true" title="' + U.esc(txt) + '"></span>';
+    const b = document.getElementById('status-line-m'); if (b) b.innerHTML = '<span class="status-dot' + dot + '" aria-hidden="true" title="' + U.esc(txt) + '"></span>';
     // device sync status (only when sync is on)
     const sl = VIEWER ? PT.viewer.statusLine() : PT.sync && PT.sync.statusLine();
     const where = VIEWER ? '#/dashboard' : '#/settings';
@@ -285,7 +288,18 @@ window.PT = window.PT || {};
   });
   U.on('store:quota', () => UI.toast('Browser storage is full — export a backup, then clear recorded history in Settings.', 'error', 8000));
 
-  window.addEventListener('hashchange', () => { if (PT.modal.isOpen()) PT.modal.close(); app.render(false); });
+  /* #/add — the Dock icon's "Add trade" shortcut: open the form over the dashboard. */
+  function takeAddRoute() {
+    if (!/^#\/?add$/.test(location.hash)) return false;
+    history.replaceState(null, '', location.pathname + location.search + '#/dashboard');
+    if (!VIEWER) setTimeout(() => PT.modal.open({}), 0);
+    return true;
+  }
+  window.addEventListener('hashchange', () => {
+    if (takeAddRoute()) { app.render(false); return; }
+    if (PT.modal.isOpen()) PT.modal.close();
+    app.render(false);
+  });
   if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (app.state.settings.theme === 'system' && app.route && app.route.name === 'position') app.render('full'); });
 
   document.addEventListener('click', e => {
@@ -376,6 +390,7 @@ window.PT = window.PT || {};
     if (VIEWER) document.body.classList.add('is-viewer');
     else seedIfNew();
     if (VIEWER) PT.viewer.start();      // shows any cached copy at once, then fetches the latest
+    takeAddRoute();
     app.recompute();
     applyTheme();
     if (!S.book.isPersistent()) setTimeout(() => UI.toast('This browser is blocking storage — changes will be lost when the tab closes.', 'error', 9000), 400);
@@ -384,6 +399,7 @@ window.PT = window.PT || {};
     app.refresh(false);
     if (!VIEWER) PT.sync.start();          // pull other devices' changes, push any unsynced ones
     checkForUpdate();
+    if (PT.pwa) PT.pwa.init();             // Mac app: offline worker, install prompt, first-launch check
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })(window.PT);
