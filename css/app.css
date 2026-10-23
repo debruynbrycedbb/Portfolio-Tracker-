@@ -377,6 +377,13 @@ textarea.input { min-height: 64px; resize: vertical; }
 .bars__row.is-hover .bars__hit, .bars__row:focus-visible .bars__hit { fill: var(--surface-3); }
 
 .alloc { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 20px; align-items: center; }
+/* The allocation card is narrow whenever it shares a row (about 980–1300px screens, or inside
+   another page). Stack the donut above the legend whenever the CARD is too narrow, whatever the screen. */
+.card:has(> .alloc) { container-type: inline-size; }
+@container (max-width: 520px) {
+  .alloc { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .alloc .legend { width: 100%; }
+}
 .legend { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .legend__row { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 4px 10px; align-items: baseline; padding: 8px 10px; border-radius: 9px; text-decoration: none; }
 .legend__row:hover, .legend__row:focus-visible { background: var(--surface-2); }

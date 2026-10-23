@@ -24,7 +24,7 @@
    config.js, version.json, the ?v= in index.html, and here).
    ========================================================================== */
 
-const VERSION = '2026.10.21-1';
+const VERSION = '2026.10.23-1';
 const CACHE = 'ledgerline-' + VERSION;
 const V = '?v=' + VERSION;
 

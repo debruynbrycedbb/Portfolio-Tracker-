@@ -60,7 +60,7 @@ window.PT = window.PT || {};
     APP_NAME: 'Ledgerline',
     // Bump this (and version.json, and the ?v= in index.html) whenever the site's files change.
     // Browsers that still run an older copy then show "A new version is available — Reload".
-    APP_VERSION: '2026.10.21-1',
+    APP_VERSION: '2026.10.23-1',
     SCHEMA_VERSION: 1,
     SEED_DATE,
     SEED_HOLDINGS,
